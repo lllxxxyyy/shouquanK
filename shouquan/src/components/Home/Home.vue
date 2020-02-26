@@ -5,8 +5,8 @@
           <div class="home_loge"><img :src="imgSrc+'loge.png'" alt=""></div>
           <div class="city_name"><span>所在城市（或地区）·{{cityName}}</span><img @click="Area" :src="imgSrc+'jiantou.png'" alt=""></div>
           <div class="Home_search">
-              <img @click="search" :src="imgSrc+'search.png'"  alt="">
-              <input type="text" v-model="comName"  placeholder="请输入公司名称">
+              <img  :src="imgSrc+'search.png'"  alt="">
+              <input @input="search" type="text" v-model="comName"  placeholder="请输入公司名称">
           </div>
       </div>
       <div class="home_Con">
@@ -43,29 +43,39 @@
                <div class="whereAreaTitle">
                    <div class="whereAreaBtn" @click="whereAreaBtn">取消</div>
                     <span>选择所在城市</span>
-                    <div class="whereAreaBtn" @click="sureCity" >确定</div>
+                    <div class="whereAreaSure" @click="sureCity" >确定</div>
                 </div>
-                
+                <ul class="whereSelCity">
+                    <li><span :class="['provinceTitle',{'AddStyle':AddStyleY==1}] ">{{provinceTitle}}</span></li>
+                    <li><span :class="['cityTitle',{'AddStyle':AddStyleY==2}]">{{cityTitle}}</span></li>
+                </ul>
                 <div class="swiperWrapper">
                     <div class="swiperWrapp provinceWrapper">
-                        <span class="provinceTitle">{{provinceTitle}}</span>
                         <swiper class="swiperList province"  :options="swiperOption" >
-                            <swiper-slide class="provinceList"  v-for="(item,index) in provinceList" :key="index">
-                                <span @click="provinceBox(item.id,item.name)">{{item.name}}</span>
+                            <swiper-slide :class="['provinceList',{'swiperListStyle':indexPName==index}]"  v-for="(item,index) in provinceList" :key="index">
+                                <span @click="provinceBox(item.id,item.name,index)">{{item.name}}</span>
                             </swiper-slide>
                         </swiper>
                     </div>
                     <div class='swiperWrapp cityWrapper'>
-                        <span class="cityTitle">{{cityTitle}}</span>
+                        
                         <swiper class="swiperList city" :options="swiperOption" >
-                            <swiper-slide class="cityList"  v-for="(item,index) in cityList" :key="index">
-                                <span @click="cityBox(item.id,item.name)">{{item.name}}</span>
+                            <swiper-slide :class="['cityList',{'swiperListStyle':indexCName==index}]"  v-for="(item,index) in cityList" :key="index">
+                                <span @click="cityBox(item.name,index)">{{item.name}}</span>
                             </swiper-slide>
                         </swiper>
                     </div>
                 </div>
           </div>
         </div>
+        <!-- 提示盒子 -->
+         <transition name="fade">
+            <div class="promptFather" v-if="showPrompt">
+                <div class="prompt" >
+                    {{promptContent}}
+                </div>
+            </div>
+        </transition>
   </div>
 </template>
 
@@ -78,8 +88,8 @@ export default {
     return {
         idText:0,
         showWhere:false,
-        provinceTitle:'省',
-        cityTitle:'市',
+        provinceTitle:'北京市',
+        cityTitle:'北京',  //被选中的城市
         provinceList:"",
         provinceList:[],
         cityList:[],
@@ -103,73 +113,112 @@ export default {
         AListData:'',//授权列表
 
         cityName:'北京',
-        comName:'',
+        comName:'',   //搜索公司名称
+        AddStyleY:1,
+        indexPName:0,
+        indexCName:0,
 
-        
+        // 提示盒子
+        promptContent:'', //提示盒子的内容
+        showPrompt:false,//提示盒子的吸收和显示
     };
   },
-
-  components: {},
-
-   computed:{
-        ...mapState(['imgSrc','detailId'])
+    computed:{
+        ...mapState(['imgSrc','detailId','id','pindex','cindex','saveComName','saveProvinceTitle','saveCityName'])
     },
 
   mounted(){
-      this.$http.post('/shouquan/empower/index').then((res)=>{
-          this.AListData=res.data.data
-      })
+    if(this.saveComName){
+        this.comName=this.saveComName
+    }
+    if(this.saveProvinceTitle){
+        this.provinceTitle=this.saveProvinceTitle
+    }
+    if(this.saveCityName){
+        this.cityName=this.saveCityName
+        this.cityTitle=this.saveCityName+'市'
+    }
+    this.getList(this.comName,this.provinceTitle,this.cityName)
   },
-
   methods: {
-      search(){
-          var obj=qs.stringify({
-              user_name:this.comName,
-              province:'',
-              city:'',
-          })
-          this.$http.post('/shouquan/empower/index',obj).then((res)=>{
-            this.AListData=res.data.data
-        })
-      },
-      sureCity(){
-         
-          for(var i=0;i<this.cityTitle.length;i++){
-              if(this.cityTitle[i]=="市"){
-                 this.cityName=this.cityTitle.slice(0,i)
-                 console.log(i)
-              }
-          }
+      getList(comName,provinceTitle,cityName){
            var obj=qs.stringify({
-              user_name:'',
-              province:this.provinceTitle,
-              city:this.cityName,
+              user_name:comName,
+              province:provinceTitle,
+              city:cityName,
           })
           this.$http.post('/shouquan/empower/index',obj).then((res)=>{
-            this.AListData=res.data.data
-            this.showWhere=false
+              if(res.data.code==200){
+                    this.AListData=res.data.data  //授权列表数据
+              }else{
+                  this.alterText(res.data.msg)
+              }
         })
       },
-       //   获取省份列表数据
-      Area(){
-          this.showWhere=true
-          var obj=qs.stringify({
-              id:0,
-          })
-          this.$http.post("/shouquan/empower/region",obj).then((res)=>{
-            if(res.data.code==200){
-                var data=res.data.data
-                this.provinceList=data
-            }else{
+    // 提示
+    alterText(text){
                 var self=this
                 clearInterval(self.timer2);
-                this.promptContent=res.data.msg
+                this.promptContent=text
                 this.showPrompt=true
                 self.timer2=setTimeout(function(){
                     self.showPrompt=false
                     clearInterval(self.timer2);
                 },2000)
                 return false;
+    },
+    //   搜索
+      search(){
+          if(this.comName==''){
+              return
+          }
+          this.saveComNames(this.comName)
+          this.saveProvinceTitles('')
+          this.saveCityNames('')
+          this.getList(this.comName,'','')
+      },
+    //   城市 确定
+      sureCity(){
+          if(this.cityTitle=="市"){ //被选中的城市
+            this.showWhere=false   //城市盒子消失
+              return
+          }
+          for(var i=0;i<this.cityTitle.length;i++){  //去掉市
+              if(this.cityTitle[i]=="市"){
+                 this.cityName=this.cityTitle.slice(0,i)
+              }
+          }
+          
+            this.getList('',this.provinceTitle,this.cityName)
+            this.showWhere=false   //城市盒子消失
+            if(this.provinceId){
+                this.ids(this.provinceId)  // 保存省份Id
+            }
+            
+            this.pindexs(this.indexPName)  //保存省份下标
+            this.cindexs(this.indexCName)  //保存城市下标
+            this.saveComNames('') //保存搜索公司名称为空
+            this.saveProvinceTitles(this.provinceTitle)
+            this.saveCityNames(this.cityName)
+      },
+       //   获取省份列表数据
+      Area(){
+          this.showWhere=true  ////城市盒子显示
+          var obj=qs.stringify({
+              id:0,
+          })
+          this.$http.post("/shouquan/empower/region",obj).then((res)=>{
+            if(res.data.code==200){
+                this.provinceList=res.data.data  //省份列表数据
+                if(this.id==""){ 
+                    this.ids(this.provinceList[0].id)
+                }
+                this.getCityData(this.id)
+                this.indexPName=this.pindex
+                this.indexCName=this.cindex
+                this.provinceTitle=this.provinceList[this.pindex].name
+            }else{
+                this.alterText(res.data.msg)
             }   
           })
       },
@@ -183,14 +232,12 @@ export default {
       },
       // 点击取消  选择地址盒子消失
       whereAreaBtn(){
+          this.cityTitle=this.cityName+'市'
           this.showWhere=false
       },
-      //   点击省份列表
-      provinceBox(provinceId,provinceName){
-          this.provinceTitle=provinceName;
-          this.provinceId=provinceId;
-          this.countyList=[];
         //   获取城市列表
+        getCityData(provinceId){
+          //   获取城市列表
            var obj=qs.stringify({
               id:provinceId,
           })
@@ -198,24 +245,31 @@ export default {
             if(res.data.code==200){
                 var data=res.data.data
                 this.cityList=data
+                
             }else{
-                var self=this
-                clearInterval(self.timer2);
-                this.promptContent=res.data.msg
-                this.showPrompt=true
-                self.timer2=setTimeout(function(){
-                    self.showPrompt=false
-                    clearInterval(self.timer2);
-                },2000)
-                return false;
+                this.alterText(res.data.msg)
             }
           })
       },
-        // 点击城市列表
-      cityBox(cityId,cityName){
-          this.cityTitle=cityName
+      //   点击省份列表
+      provinceBox(provinceId,provinceName,index){
+          if(index!==this.indexPName){
+              this.cityTitle='市'  //城市name为空
+              this.indexCName=-1 //被选中城市下标
+          }
+          this.indexPName=index  //被选中省份下标
+          this.AddStyleY=1   //添加省份头部选中样式
+          this.provinceTitle=provinceName;  //页面省份赋值
+          this.provinceId=provinceId;  //保存省份id
+          this.getCityData(provinceId) //获取城市数据
       },
-      ...mapMutations(['detailIds']),
+        // 点击城市列表
+      cityBox(cityName,index){
+          this.AddStyleY=2   //添加城市头部选中样式
+          this.cityTitle=cityName   //
+          this.indexCName=index   //被选中城市下标
+      },
+      ...mapMutations(['detailIds','ids','pindexs','cindexs','saveComNames','saveProvinceTitles','saveCityNames'])
   }
 }
 
@@ -372,18 +426,17 @@ export default {
              width:1.59rem;
          
          }
-         .whereArea{
+.whereArea{
     width:100%;
     height:100%;
     position :absolute;
     top:0;
     left:0;
     background :rgba(0,0,0,0.5)
-    
 }
 .whereAreaBox{
     width:100%;
-    height:13.33rem;
+    height:12.09rem;
     position :absolute;
     bottom:0;
     left:0;
@@ -393,52 +446,109 @@ export default {
         justify-content :space-between;
         >.swiperWrapp{
             width:50%;
-            height:13.33rem;
+            height:10rem;
             overflow :hidden;
             >.swiperList{
                 width:100%;
-                height:13.33rem;
+                height:10rem;
                 overflow :hidden;
+                padding:0 0.4rem;
+                .swiperListStyle{
+                    color:rgba(63, 121, 254, 1);
+                }
             }
         }
     }
     >.whereAreaTitle{
         font-size:0.4rem;
         width:100%;
-        height:0.8rem;
+        height:1.03rem;
         text-align :center;
         line-height :0.8rem;
         display:flex;
         justify-content :space-between;
         align-items :center;
         padding:0 0.4rem;
+        border-bottom:0.03rem solid rgba(0, 0, 0, 0.1);
+        >.whereAreaBtn{
+            font-size:0.4rem;
+            color:rgba(153, 153, 153, 1);
+        }
+        >span{
+            font-size:0.48rem;
+            color:rgba(0, 0, 0, 0.7);
+            font-weight:600;
+        }
+        >.whereAreaSure{
+            font-size:0.4rem;
+            color:rgba(63, 121, 254, 1);
+        }
     }
-    >.whereAreaBtn{
-        font-size:0.37rem;
-        width:100%;
-        // height:0.3rem;
-        text-align :right;
-        // line-height :0.5rem;
-        padding:0 0.27rem;
+    >.whereSelCity{
+        height:1.05rem;
+        display:flex;
+        padding:0 0.4rem;
+        border-bottom:0.03rem solid rgba(0, 0, 0, 0.1);
+        >li{
+            margin-right:1.25rem;
+            >span{
+                font-size:0.373rem;
+                 display :block;
+                height:1.04rem;
+                line-height :1.04rem;
+            }
+            >.AddStyle{
+               
+                color:rgba(63, 121, 254, 1);
+                border-bottom:0.03rem solid rgba(63, 121, 254, 1);
+            }
+        }
+        
     }
+    
 }
-.provinceList,.cityList,.countyList{
+.provinceList,.cityList{
     width:100%;
     font-size:0.32rem;
-    height:0.8rem;
-    line-height :0.8rem;
+    height:1.07rem;
+    line-height :1.07rem;
     text-align :center;
-}
-.provinceTitle,.cityTitle,.countyTitle{
-    width:100%;
-    height:0.8rem;
-    display:inline-block;
-    text-align:center;
-    font-size:0.37rem;
-    line-height :0.8rem;
-    border-bottom:0.03rem solid #F1F1F1;
+    border-bottom:0.03rem solid rgba(0, 0, 0, 0.1);
+    &:last-child{
+        border-bottom:0;
+    }
 }
 .province{
     background :rgba(246, 246, 252, 1);
+}
+
+
+
+// 提示盒子
+.promptFather{
+    width:100%;
+    position :absolute;
+    bottom:50%;
+    left:0;
+    z-index:10;
+    display :flex;
+    justify-content :center;
+    align-items :center;
+    
+    >.prompt{
+        padding:0.15rem 0.3rem;;
+        background :#999;
+        color:#fff;
+        border-radius:0.5rem;
+        font-size:0.37rem;
+    }
+}
+.fade-enter-active, .fade-leave-active {
+//   transition: opacity .5s;
+    transition: all .3s ease;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+   transform: translateY(0.32rem);
+  opacity: 0;
 }
 </style>
