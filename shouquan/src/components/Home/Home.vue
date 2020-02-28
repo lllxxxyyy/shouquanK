@@ -14,28 +14,29 @@
                 <span>授权信息</span>
             </div>
             <div class="authorize_desWrapper">
-                <div class="authorize_des">
-                <div class="authorize_desName">
-                    <span class="Authorization_date">授权日期</span>
-                    <span class="company_name">公司名称</span>
-                    <span class="business_license">营业执照</span>
-                    <span class="Contact_person">联系人</span>
-                    <span class="Contact_phone">联系电话</span>
-                    <span class="look_over">查看</span>
+                <div class="authorize_desPadding">
+                    <div class="authorize_des">
+                        <div class="authorize_desName">
+                            <span class="Authorization_date">授权日期</span>
+                            <span class="company_name">公司名称</span>
+                            <span class="business_license">营业执照</span>
+                            <span class="Contact_person">联系人</span>
+                            <span class="Contact_phone">联系电话</span>
+                            <span class="look_over">查看</span>
+                        </div>
+                        <ul class="authorize_desList">
+                            <li v-for="(value,index) in AListData" :key="index">
+                                <span class="Authorization_date">{{value.add_time}}</span>
+                                <span class="company_name">{{value.user_name}}</span>
+                                <span class="business_license"> <img :src="value.img" alt=""> </span>
+                                <span class="Contact_person">{{value.nickname}}</span>
+                                <span class="Contact_phone">{{value.tel}}</span>
+                                <span class="look_over" @click="toDetail(value.id)">查看详情</span>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
-                <ul class="authorize_desList">
-                    <li v-for="(value,index) in AListData" :key="index">
-                        <span class="Authorization_date">{{value.add_time}}</span>
-                        <span class="company_name">{{value.user_name}}</span>
-                        <span class="business_license"> <img :src="value.img" alt=""> </span>
-                        <span class="Contact_person">{{value.nickname}}</span>
-                        <span class="Contact_phone">{{value.tel}}</span>
-                        <span class="look_over" @click="toDetail(value.id)">查看详情</span>
-                    </li>
-                </ul>
             </div>
-            </div>
-          
       </div>
 
       <div class="whereArea" v-if="showWhere" @click="hideWhere">
@@ -369,6 +370,10 @@ export default {
     overflow :hidden;
     overflow-x:scroll;
  }
+ .authorize_desPadding{
+     width:13.48rem;
+     padding-right:0.27rem;
+ }
  .authorize_des{
      width:13.21rem;
      margin-top:0.27rem;
@@ -392,12 +397,17 @@ export default {
                     font-size:0.32rem;
                     color:rgba(0, 0, 0, 1);
                     display :flex;
+                    
                 >span{
                     height:1.173rem;
                     text-align :center;
                     line-height :1.173rem;
                     border-right:0.03rem solid rgba(0, 0, 0, 0.14) ;
                     border-bottom:0.03rem solid rgba(0, 0, 0, 0.14) ;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+
                     >img{
                         width:1.49rem;
                         height:0.973rem;
