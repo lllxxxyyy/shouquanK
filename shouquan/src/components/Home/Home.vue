@@ -18,6 +18,7 @@
                     <div class="authorize_des">
                         <div class="authorize_desName">
                             <span class="Authorization_date">授权日期</span>
+                            <span class="Authorization_date">截止日期</span>
                             <span class="company_name">公司名称</span>
                             <span class="business_license">营业执照</span>
                             <span class="Contact_person">联系人</span>
@@ -27,6 +28,7 @@
                         <ul class="authorize_desList">
                             <li v-for="(value,index) in AListData" :key="index">
                                 <span class="Authorization_date">{{value.add_time}}</span>
+                                <span class="Authorization_date">{{value.end_time}}</span>
                                 <span class="company_name">{{value.user_name}}</span>
                                 <span class="business_license"> <img :src="value.img" alt=""> </span>
                                 <span class="Contact_person">{{value.nickname}}</span>
@@ -371,11 +373,11 @@ export default {
     overflow-x:scroll;
  }
  .authorize_desPadding{
-     width:13.48rem;
+     width:15.51rem;
      padding-right:0.27rem;
  }
  .authorize_des{
-     width:13.21rem;
+     width:15.24rem;
      margin-top:0.27rem;
      border-top:0.03rem solid rgba(0, 0, 0, 0.14) ;
      border-left:0.03rem solid rgba(0, 0, 0, 0.14) ;

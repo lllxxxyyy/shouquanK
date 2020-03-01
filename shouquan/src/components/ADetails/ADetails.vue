@@ -27,6 +27,10 @@
                   <span class="list_left">授权时间：</span>
                   <span class="list_right">{{detailData.add_time}}</span>
               </li>
+              <li>
+                  <span class="list_left">截止时间：</span>
+                  <span class="list_right">{{detailData.end_time}}</span>
+              </li>
               <li class="business_license">
                   <span class="list_left">营业执照：</span>
                   <img :src="detailData.img" alt="">
