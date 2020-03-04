@@ -5,11 +5,11 @@ const state = {
     imgSrc: '/static/mock/img/',
     detailId: sessionStorage.getItem('detailId'),
     id: sessionStorage.getItem('id') || '',
-    pindex: sessionStorage.getItem('pindex') || 0,
-    cindex: sessionStorage.getItem('cindex') || 0,
+    pindex: sessionStorage.getItem('pindex') || '-1',
+    cindex: sessionStorage.getItem('cindex') || '-1',
     saveComName: sessionStorage.getItem('saveComName'),
-    saveProvinceTitle: sessionStorage.getItem('saveProvinceTitle') || '北京市',
-    saveCityName: sessionStorage.getItem('saveCityName') || '北京',
+    saveProvinceTitle: sessionStorage.getItem('saveProvinceTitle') || '',
+    saveCityName: sessionStorage.getItem('saveCityName') || '',
 }
 const mutations = {
     saveComNames(state, saveComName) {

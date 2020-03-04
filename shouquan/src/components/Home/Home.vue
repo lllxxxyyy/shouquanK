@@ -89,10 +89,9 @@ import {mapMutations} from 'vuex'
 export default {
   data () {
     return {
-        idText:0,
         showWhere:false,
-        provinceTitle:'北京市',
-        cityTitle:'北京',  //被选中的城市
+        provinceTitle:'',
+        cityTitle:'',  //被选中的城市
         provinceList:"",
         provinceList:[],
         cityList:[],
@@ -115,11 +114,11 @@ export default {
 
         AListData:'',//授权列表
 
-        cityName:'北京',
+        cityName:'',
         comName:'',   //搜索公司名称
-        AddStyleY:1,
-        indexPName:0,
-        indexCName:0,
+        AddStyleY:-1,
+        indexPName:-1,
+        indexCName:-1,
 
         // 提示盒子
         promptContent:'', //提示盒子的内容
@@ -144,6 +143,7 @@ export default {
     this.getList(this.comName,this.provinceTitle,this.cityName)
   },
   methods: {
+     
       getList(comName,provinceTitle,cityName){
            var obj=qs.stringify({
               user_name:comName,
@@ -152,7 +152,7 @@ export default {
           })
           this.$http.post('/shouquan/empower/index',obj).then((res)=>{
               if(res.data.code==200){
-                    this.AListData=res.data.data  //授权列表数据
+                    this.AListData=res.data.data.data  //授权列表数据
               }else{
                   this.alterText(res.data.msg)
               }

@@ -31,6 +31,14 @@
                   <span class="list_left">截止时间：</span>
                   <span class="list_right">{{detailData.end_time}}</span>
               </li>
+              <li>
+                  <span class="list_left">编号：</span>
+                  <span class="list_right">{{detailData.empower_sn}}</span>
+              </li>
+              <li class="business_license">
+                  <span class="list_left">授权证明：</span>
+                  <img :src="detailData.empower" alt="">
+              </li>
               <li class="business_license">
                   <span class="list_left">营业执照：</span>
                   <img :src="detailData.img" alt="">
@@ -78,7 +86,6 @@ export default {
 <style scoped lang="stylus">
 .ADetails{
     width:100%;
-    height:100%;
     background :rgba(246, 246, 252, 1);
 }
 .ADetails_header{
@@ -100,17 +107,15 @@ export default {
         left:0.4rem;
     }
 }
-
+.ADetails_des{
+    padding:0.4rem;
+}
 .ADetails_list{
     width:9.2rem;
     padding:0.27rem;
-    padding-right:0.4rem 0;
     background :#fff;
     border-radius:0.08rem;
-    margin:0.4rem;
     font-size:0.373rem;
-    
-    
     >li{
         padding:0.4rem 0;
         border-bottom:0.03rem solid rgba(0, 0, 0, 0.14);
