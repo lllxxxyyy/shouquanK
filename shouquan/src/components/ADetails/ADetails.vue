@@ -38,10 +38,12 @@
               <li class="business_license">
                   <span class="list_left">授权证明：</span>
                   <img :src="detailData.empower" alt="">
+                  <div class="business_HIde"></div>
               </li>
               <li class="business_license">
                   <span class="list_left">营业执照：</span>
                   <img :src="detailData.img" alt="">
+                  <div class="business_HIde"></div>
               </li>
               
           </ul>
@@ -126,10 +128,19 @@ export default {
     >.business_license{
         display :flex;
         flex-direction :column;
+        position :relative;
         >img{
             width:5.33rem;
             margin-top:0.27rem;
         }
+        >.business_HIde{
+            width:100%;
+            height:100%;
+            position :absolute;
+            top:0;
+            left:0;
+        }
+
     }
 }
 </style>
